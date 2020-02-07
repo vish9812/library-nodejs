@@ -1,60 +1,14 @@
 const express = require('express');
+const sql = require('mssql');
+const debug = require('debug')('app:bookRoutes');
 
 const router = express.Router();
 
 function routeHandler(data) {
-  const books = [
-    {
-      title: 'War and Peace',
-      genre: 'Historical Fiction',
-      author: 'Lev Nikolayevich Tolstoy',
-      read: false,
-    },
-    {
-      title: 'Les Misérables',
-      genre: 'Historical Fiction',
-      author: 'Victor Hugo',
-      read: false,
-    },
-    {
-      title: 'The Time Machine',
-      genre: 'Science Fiction',
-      author: 'H. G. Wells',
-      read: false,
-    },
-    {
-      title: 'A Journey into the Center of the Earth',
-      genre: 'Science Fiction',
-      author: 'Jules Verne',
-      read: false,
-    },
-    {
-      title: 'The Dark World',
-      genre: 'Fantasy',
-      author: 'Henry Kuttner',
-      read: false,
-    },
-    {
-      title: 'The Wind in the Willows',
-      genre: 'Fantasy',
-      author: 'Kenneth Grahame',
-      read: false,
-    },
-    {
-      title: 'Life On The Mississippi',
-      genre: 'History',
-      author: 'Mark Twain',
-      read: false,
-    },
-    {
-      title: 'Childhood',
-      genre: 'Biography',
-      author: 'Lev Nikolayevich Tolstoy',
-      read: false,
-    }];
-
   router.route('/')
-    .get((req, res) => {
+    .get(async (req, res) => {
+      const books = (await sql.query`select id, title, author from Books`).recordset;
+
       res.render(
         'bookListView',
         {
@@ -66,15 +20,23 @@ function routeHandler(data) {
     });
 
   router.route('/:id')
-    .get((req, res) => {
+    .all(async (req, res, next) => {
       const { id } = req.params;
+      const book = (await sql.query`select id, title, author from Books where Id = ${id}`).recordset[0];
 
+      debug(book);
+
+      req.book = book;
+
+      next();
+    })
+    .get(async (req, res) => {
       res.render(
         'bookView',
         {
           nav: data.nav,
           title: data.title,
-          book: books[id],
+          book: req.book,
         },
       );
     });

@@ -1,8 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const chalk = require('chalk');
 const debug = require('debug')('app');
 const morgan = require('morgan');
 const path = require('path');
+const sql = require('mssql');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +23,15 @@ const commonData = {
   title: 'Library',
 };
 const bookRouter = require('./src/routes/bookRoutes')(commonData);
+
+const config = {
+  user: process.env.sql_user,
+  password: process.env.sql_password,
+  server: process.env.sql_server,
+  database: 'Library',
+};
+
+sql.connect(config).catch((err) => debug(err));
 
 app.use(morgan('tiny'));
 
