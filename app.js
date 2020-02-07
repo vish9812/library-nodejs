@@ -5,7 +5,6 @@ const chalk = require('chalk');
 const debug = require('debug')('app');
 const morgan = require('morgan');
 const path = require('path');
-const sql = require('mssql');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,16 +21,9 @@ const commonData = {
     }],
   title: 'Library',
 };
+
 const bookRouter = require('./src/routes/bookRoutes')(commonData);
-
-const config = {
-  user: process.env.sql_user,
-  password: process.env.sql_password,
-  server: process.env.sql_server,
-  database: 'Library',
-};
-
-sql.connect(config).catch((err) => debug(err));
+const adminRouter = require('./src/routes/adminRoutes')(commonData);
 
 app.use(morgan('tiny'));
 
@@ -41,6 +33,7 @@ app.use('/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/
 app.use('/js', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
 
 app.use('/books', bookRouter);
+app.use('/admin', adminRouter);
 
 app.set('views', './src/views');
 app.set('view engine', 'ejs');
