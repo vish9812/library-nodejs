@@ -1,18 +1,22 @@
 const express = require('express');
 const debug = require('debug')('app:bookRoutes');
-const { ObjectID } = require('mongodb');
 
-const useMongo = require('../utility/data/mongo');
+const booksRepo = require('../repo/books');
 
 const router = express.Router();
 
 function routeHandler(data) {
+  router.use((req, res, next) => {
+    if (req.user) {
+      next();
+    } else {
+      res.redirect('/');
+    }
+  });
+
   router.route('/')
     .get(async (req, res) => {
-      const books = await useMongo(async (db) => {
-        const col = await db.collection('books');
-        return col.find().toArray();
-      });
+      const books = await booksRepo.fetchBooks();
 
       res.render(
         'bookListView',
@@ -28,12 +32,9 @@ function routeHandler(data) {
     .all(async (req, res, next) => {
       const { id } = req.params;
 
-      const book = await useMongo(async (db) => {
-        const col = await db.collection('books');
-        return col.findOne({ _id: new ObjectID(id) });
-      });
+      const book = await booksRepo.findBook(id);
 
-      debug(book);
+      debug('Setting the book in req object');
 
       req.book = book;
 

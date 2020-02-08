@@ -1,6 +1,7 @@
 const express = require('express');
 const debug = require('debug')('app:adminRoutes');
-const useMongo = require('../utility/data/mongo');
+
+const booksRepo = require('../repo/books');
 
 const router = express.Router();
 
@@ -57,12 +58,10 @@ function routeHandler(data) {
 
   router.route('/')
     .get(async (req, res) => {
-      await useMongo(async (db) => {
-        debug('Inserting Books');
-        const response = await db.collection('books').insertMany(books);
+      debug('Inserting Books');
+      const response = await booksRepo.addBooks(books);
 
-        res.json(response);
-      });
+      res.json(response);
     });
 
   return router;
