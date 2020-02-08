@@ -2,11 +2,14 @@ const express = require('express');
 const debug = require('debug')('app:authRoutes');
 const passport = require('passport');
 
+const authController = require('../controllers/authController');
 const authRepo = require('../repo/auth');
 
 const router = express.Router();
 
 function routeHandler(data) {
+  const { authMiddleware, getProfile } = authController(data);
+
   router.route('/signup')
     .get((req, res) => {
       res.render('signup', data);
@@ -56,16 +59,8 @@ function routeHandler(data) {
     }));
 
   router.route('/profile')
-    .all((req, res, next) => {
-      if (req.user) {
-        next();
-      } else {
-        res.redirect('/');
-      }
-    })
-    .get((req, res) => {
-      res.render('profile', { user: JSON.stringify(req.user), ...data });
-    });
+    .all(authMiddleware)
+    .get(getProfile);
 
   return router;
 }

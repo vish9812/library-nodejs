@@ -8,12 +8,14 @@ const router = express.Router();
 function routeHandler(data) {
   const books = [
     {
+      id: 656,
       title: 'War and Peace',
       genre: 'Historical Fiction',
       author: 'Lev Nikolayevich Tolstoy',
       read: false,
     },
     {
+      id: 24280,
       title: 'Les Misérables',
       genre: 'Historical Fiction',
       author: 'Victor Hugo',
