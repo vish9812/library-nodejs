@@ -7,7 +7,8 @@ function findUser(username) {
 }
 
 function saveUser(username, password) {
-  return mongo.usingCollection(collection, async (col) => (await col.insertOne({ username, password })).ops[0]);
+  return mongo.usingCollection(collection,
+    async (col) => (await col.insertOne({ username, password })).ops[0]);
 }
 
 module.exports = {

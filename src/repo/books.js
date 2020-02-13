@@ -1,15 +1,31 @@
-const { ObjectID } = require('mongodb');
+const debug = require('debug')('app:repo-book');
 
 const mongo = require('./mongo');
+const mongoo = require('./mongoo');
+const bookModel = require('../models/book');
 
 const collection = 'books';
+const modelName = 'Book';
 
 function findBook(id) {
-  return mongo.usingCollection(collection, (col) => col.findOne({ _id: new ObjectID(id) }));
+  return mongoo.usingModel(modelName, bookModel, (Book) => Book.findById(id).lean());
 }
 
-function fetchBooks() {
-  return mongo.usingCollection(collection, (col) => col.find().toArray());
+async function fetchBooks() {
+  debug('Fetch books called');
+  const myBooks = await mongoo.usingModel(modelName, bookModel, async (Book) => {
+    debug('Finding Books');
+
+    const books = await Book.find({});
+
+    debug('Got books');
+
+    return books;
+  });
+
+  debug('exiting fetchBooks');
+
+  return myBooks;
 }
 
 function addBooks(books) {
